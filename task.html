@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Todo App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        background-color: #fff;
+        width: 400px;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 24px;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .task-text {
+        flex: 1;
+        margin: 0;
+        padding: 0;
+      }
+
+      .task-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .add-task {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-top: 1px solid #ccc;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        padding: 5px;
+        border: none;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .add-button {
+        background-color: #0074d9;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <p>Welcome, <span id="username"></span>!</p>
+      <h1>Todo List</h1>
+      <ul id="task-list">
+        <!-- Tasks will be added here dynamically -->
+      </ul>
+      <div class="add-task">
+        <input type="text" id="new-task" placeholder="Add a new task" />
+        <button class="add-button" id="add-task">Add</button>
+      </div>
+    </div>
+    <script>
+      // JavaScript for adding, editing, and deleting tasks
+      const taskList = document.getElementById("task-list");
+      const newTaskInput = document.getElementById("new-task");
+      const addTaskButton = document.getElementById("add-task");
+
+      // Function to add a new task
+      function addTask() {
+        const taskText = newTaskInput.value.trim();
+        if (taskText) {
+          const li = document.createElement("li");
+          li.innerHTML = `
+          <p class="task-text">${taskText}</p>
+          <div class="task-actions">
+            <button class="edit-task">Edit</button>
+            <button class="delete-task">Delete</button>
+          </div>
+        `;
+          taskList.appendChild(li);
+          newTaskInput.value = "";
+          attachTaskActions(li);
+        }
+      }
+
+      // Function to attach actions to a task (edit and delete)
+      function attachTaskActions(taskElement) {
+        const editButton = taskElement.querySelector(".edit-task");
+        const deleteButton = taskElement.querySelector(".delete-task");
+
+        editButton.addEventListener("click", function () {
+          const newText = prompt(
+            "Edit task:",
+            taskElement.querySelector(".task-text").textContent
+          );
+          if (newText !== null) {
+            taskElement.querySelector(".task-text").textContent = newText;
+          }
+        });
+
+        deleteButton.addEventListener("click", function () {
+          taskElement.remove();
+        });
+      }
+
+      // Event listener for adding a new task
+      addTaskButton.addEventListener("click", addTask);
+
+      // Attach actions to existing tasks
+      taskList.querySelectorAll("li").forEach(attachTaskActions);
+    </script>
+  </body>
+</html>
