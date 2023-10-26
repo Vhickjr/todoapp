@@ -5,7 +5,7 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f2f2f2;
+        background-color: #f0f0f0;
         margin: 0;
         display: flex;
         justify-content: center;
@@ -24,6 +24,7 @@
       h1 {
         text-align: center;
         font-size: 24px;
+        color: #333;
       }
 
       ul {
@@ -43,6 +44,7 @@
         flex: 1;
         margin: 0;
         padding: 0;
+        color: #333;
       }
 
       .task-actions {
@@ -54,6 +56,7 @@
         background: none;
         border: none;
         cursor: pointer;
+        color: #0074d9;
       }
 
       .add-task {
@@ -78,12 +81,53 @@
         padding: 5px 10px;
         cursor: pointer;
       }
+
+      /* Style for the "Complete" button */
+      .complete-task {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #28a745;
+      }
+
+      .complete-task:disabled {
+        color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      /* Styling for the overview counts */
+      #overview {
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      #overview p {
+        margin: 0;
+        color: #333;
+      }
+
+      #overview span {
+        font-weight: bold;
+      }
+
+      /* Styling for the pending tasks box */
+      #pending-tasks {
+        background-color: #ffc107;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <p>Welcome, <span id="username"></span>!</p>
+      <p>Welcome, <span id="username">User</span>!</p>
       <h1>Todo List</h1>
+      <div id="overview">
+        <p>Completed: <span id="completed-count">0</span></p>
+        <p>Pending: <span id="pending-count">0</span></p>
+        <p>Deleted: <span id="deleted-count">0</span></p>
+      </div>
       <ul id="task-list">
         <!-- Tasks will be added here dynamically -->
       </ul>
@@ -91,35 +135,57 @@
         <input type="text" id="new-task" placeholder="Add a new task" />
         <button class="add-button" id="add-task">Add</button>
       </div>
+      <div id="pending-tasks">
+        <h2>Pending Tasks</h2>
+        <ul id="pending-task-list">
+          <!-- Pending tasks will be added here dynamically -->
+        </ul>
+      </div>
     </div>
     <script>
       // JavaScript for adding, editing, and deleting tasks
       const taskList = document.getElementById("task-list");
+      const pendingTaskList = document.getElementById("pending-task-list");
       const newTaskInput = document.getElementById("new-task");
       const addTaskButton = document.getElementById("add-task");
+      const completedCount = document.getElementById("completed-count");
+      const pendingCount = document.getElementById("pending-count");
+      const deletedCount = document.getElementById("deleted-count");
 
-      // Function to add a new task
-      function addTask() {
-        const taskText = newTaskInput.value.trim();
-        if (taskText) {
-          const li = document.createElement("li");
-          li.innerHTML = `
+      let completedTasks = 0;
+      let pendingTasks = 0;
+      let deletedTasks = 0;
+
+      // Function to update task counts
+      function updateTaskCounts() {
+        completedCount.textContent = completedTasks;
+        pendingCount.textContent = pendingTasks;
+        deletedCount.textContent = deletedTasks;
+      }
+
+      // Function to add a new task to the "Pending Tasks" section
+      function addTask(taskText) {
+        const li = document.createElement("li");
+        li.innerHTML = `
           <p class="task-text">${taskText}</p>
           <div class="task-actions">
             <button class="edit-task">Edit</button>
             <button class="delete-task">Delete</button>
+            <button class="complete-task">Complete</button>
           </div>
         `;
-          taskList.appendChild(li);
-          newTaskInput.value = "";
-          attachTaskActions(li);
-        }
+        pendingTaskList.appendChild(li);
+        newTaskInput.value = "";
+        attachTaskActions(li);
+        pendingTasks++;
+        updateTaskCounts();
       }
 
-      // Function to attach actions to a task (edit and delete)
+      // Function to attach actions to a task (edit, delete, complete)
       function attachTaskActions(taskElement) {
         const editButton = taskElement.querySelector(".edit-task");
         const deleteButton = taskElement.querySelector(".delete-task");
+        const completeButton = taskElement.querySelector(".complete-task");
 
         editButton.addEventListener("click", function () {
           const newText = prompt(
@@ -133,14 +199,34 @@
 
         deleteButton.addEventListener("click", function () {
           taskElement.remove();
+          pendingTasks--;
+          deletedTasks++;
+          updateTaskCounts();
+        });
+
+        completeButton.addEventListener("click", function () {
+          taskElement.style.textDecoration = "line-through";
+          taskElement.style.color = "gray";
+          taskElement.querySelector(".complete-task").disabled = true;
+          completedTasks++;
+          pendingTasks--;
+          updateTaskCounts();
         });
       }
 
       // Event listener for adding a new task
-      addTaskButton.addEventListener("click", addTask);
+      addTaskButton.addEventListener("click", function () {
+        const taskText = newTaskInput.value.trim();
+        if (taskText) {
+          addTask(taskText);
+        }
+      });
 
       // Attach actions to existing tasks
       taskList.querySelectorAll("li").forEach(attachTaskActions);
+
+      // Initial update of task counts
+      updateTaskCounts();
     </script>
   </body>
 </html>
